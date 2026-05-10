@@ -1,8 +1,350 @@
 ---
-// Phase 3: implement per DIAGRAM_SPEC.md
+import diagramData from '../data/role2-nodes.json';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+const data = diagramData as any;
+const { nodes, bands, edges, title, subtitle, viewBox } = data;
+
+// Render nodes in patient-flow tab order (1–9), then bands (10–12)
+const sortedNodes = [...nodes].sort((a: any, b: any) => a.tabOrder - b.tabOrder);
+const sortedBands = [...bands].sort((a: any, b: any) => a.tabOrder - b.tabOrder);
+
+// Helpers
+function cx(n: any) { return n.x + n.width / 2; }
+function cy(n: any) { return n.y + n.height / 2; }
+function bandCx(b: any) { return b.x + b.width / 2; }
+function bandCy(b: any) { return b.y + b.height / 2; }
+
+// Convert edge waypoints to a polyline points string
+function pts(waypoints: number[][]): string {
+  return waypoints.map((p) => p.join(',')).join(' ');
+}
 ---
 
-<div class="role2-diagram-placeholder" style="border: 2px dashed #3D5C3E; border-radius: 8px; padding: 2rem; text-align: center; color: #3D5C3E; font-family: system-ui, sans-serif;">
-  <strong>Role 2 Patient Flow Diagram</strong>
-  <p style="font-size: 0.875rem; margin-top: 0.5rem;">Interactive SVG implemented in Phase 3.</p>
+<div class="role2-diagram-container">
+  <svg
+    viewBox={viewBox}
+    xmlns="http://www.w3.org/2000/svg"
+    role="img"
+    aria-label="Role 2 Patient Flow Diagram — interactive navigation of ARSC surgical care stations"
+    width="100%"
+    height="auto"
+    preserveAspectRatio="xMidYMid meet"
+  >
+    <title>Role 2 Patient Flow</title>
+    <desc>
+      Interactive diagram showing the ARSC Role 2 patient flow. Patients move from
+      Austere Prep / R2RA through Preparing to Receive Patients, Triage, and
+      Shock Trauma Platoon / Damage Control Resuscitation. From STP/DCR, patients
+      may be routed upward to FRSS / Damage Control Surgery, downward to Holding
+      (Silver 48) or Prolonged Holding (Zinc 48), or onward to EVAC / En Route
+      Care. Mortuary Affairs is a terminal destination. Three cross-cutting themes
+      surround the flow: Team Development and Dynamics, Trauma System Integration,
+      and Clinical Operations in the Austere Environment. Each station and theme
+      is a clickable link to detailed reference content.
+    </desc>
+
+    <defs>
+      <marker
+        id="arrowhead"
+        viewBox="0 0 10 7"
+        refX="10"
+        refY="3.5"
+        markerWidth="10"
+        markerHeight="7"
+        orient="auto-start-reverse"
+      >
+        <polygon points="0 0, 10 3.5, 0 7" fill="#282c33" />
+      </marker>
+      <marker
+        id="arrowhead-dashed"
+        viewBox="0 0 10 7"
+        refX="10"
+        refY="3.5"
+        markerWidth="8"
+        markerHeight="6"
+        orient="auto-start-reverse"
+      >
+        <polygon points="0 0, 10 3.5, 0 7" fill="#282c33" />
+      </marker>
+    </defs>
+
+    {/* ── Title ── */}
+    <text
+      x="600"
+      y="40"
+      text-anchor="middle"
+      font-size="28"
+      font-weight="700"
+      fill="#282c33"
+      font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    >{title}</text>
+    <text
+      x="600"
+      y="62"
+      text-anchor="middle"
+      font-size="16"
+      font-weight="400"
+      fill="#555"
+      font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+    >{subtitle}</text>
+
+    {/* ── Cross-cutting bands ── */}
+    <g class="bands">
+      {sortedBands.map((band: any) => (
+        <a
+          href={band.route}
+          tabindex={String(band.tabOrder)}
+          aria-label={`${band.label} — click for detailed reference`}
+          class="band"
+        >
+          <rect
+            class="band-focus-ring"
+            x={band.x - 3}
+            y={band.y - 3}
+            width={band.width + 6}
+            height={band.height + 6}
+            rx="6"
+            fill="none"
+            stroke="#3D5C3E"
+            stroke-width="2"
+            opacity="0"
+          />
+          <rect
+            class="band-rect"
+            x={band.x}
+            y={band.y}
+            width={band.width}
+            height={band.height}
+            rx="4"
+            fill="rgba(61,92,62,0.10)"
+            stroke="rgba(61,92,62,0.40)"
+            stroke-width="1"
+          />
+          <text
+            x={bandCx(band)}
+            y={bandCy(band)}
+            text-anchor="middle"
+            dominant-baseline="central"
+            font-size="13"
+            font-weight="600"
+            fill="#3D5C3E"
+            font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+          >{band.label}</text>
+        </a>
+      ))}
+    </g>
+
+    {/* ── Frame connectors ── */}
+    <line x1="60" y1="124" x2="60" y2="590" stroke="rgba(61,92,62,0.40)" stroke-width="1" />
+    <line x1="1140" y1="124" x2="1140" y2="590" stroke="rgba(61,92,62,0.40)" stroke-width="1" />
+
+    {/* ── Edges (render before nodes so nodes layer on top) ── */}
+    <g class="edges">
+      {edges.map((edge: any) => {
+        const isDashed = edge.style === 'dashed';
+        const markerId = isDashed ? '#arrowhead-dashed' : '#arrowhead';
+        const strokeWidth = isDashed ? '1' : '1.5';
+        const dashArray = isDashed ? '6 3' : undefined;
+        const commonProps = {
+          stroke: '#282c33',
+          'stroke-width': strokeWidth,
+          fill: 'none',
+          'marker-end': `url(${markerId})`,
+          ...(dashArray ? { 'stroke-dasharray': dashArray } : {}),
+        };
+        if (edge.waypoints.length === 2) {
+          return (
+            <line
+              x1={edge.waypoints[0][0]}
+              y1={edge.waypoints[0][1]}
+              x2={edge.waypoints[1][0]}
+              y2={edge.waypoints[1][1]}
+              {...commonProps}
+            />
+          );
+        }
+        return (
+          <polyline
+            points={pts(edge.waypoints)}
+            {...commonProps}
+          />
+        );
+      })}
+    </g>
+
+    {/* ── Nodes ── */}
+    <g class="nodes">
+      {sortedNodes.map((node: any) => {
+        const ncx = cx(node);
+        const ncy = cy(node);
+        const isTerminal = node.type === 'terminal';
+        const hasSubtitle = node.subtitle !== null && node.subtitle !== undefined;
+        const labelY = hasSubtitle ? ncy - 8 : ncy;
+        const subtitleY = ncy + 12;
+        const nodeRx = isTerminal ? 20 : 8;
+        const focusRx = isTerminal ? 22 : 10;
+        const nodeStrokeWidth = isTerminal ? 1.5 : 2;
+        const labelSize = isTerminal ? '12' : '14';
+        const labelWeight = isTerminal ? '500' : '600';
+        const ariaLabel = hasSubtitle
+          ? `${node.label} / ${node.subtitle} — click for detailed reference`
+          : `${node.label} — click for detailed reference`;
+
+        return (
+          <a
+            href={node.route}
+            tabindex={String(node.tabOrder)}
+            aria-label={ariaLabel}
+            class={`node${isTerminal ? ' node-terminal' : ''}`}
+          >
+            {/* Focus ring — hidden by default, shown on :focus */}
+            <rect
+              class="focus-ring"
+              x={node.x - 3}
+              y={node.y - 3}
+              width={node.width + 6}
+              height={node.height + 6}
+              rx={focusRx}
+              fill="none"
+              stroke="#3D5C3E"
+              stroke-width="2"
+              opacity="0"
+            />
+            {/* Hit area — enlarged touch target (160×100 centered on node) */}
+            <rect
+              class="hit-area"
+              x={ncx - 80}
+              y={ncy - 50}
+              width="160"
+              height="100"
+              fill="transparent"
+              aria-hidden="true"
+            />
+            {/* Visible node rect */}
+            <rect
+              class="node-rect"
+              x={node.x}
+              y={node.y}
+              width={node.width}
+              height={node.height}
+              rx={nodeRx}
+              fill="#FFFFFF"
+              stroke="#282c33"
+              stroke-width={nodeStrokeWidth}
+              {...(isTerminal ? { 'stroke-dasharray': '6 3' } : {})}
+            />
+            {/* Primary label */}
+            <text
+              x={ncx}
+              y={labelY}
+              text-anchor="middle"
+              dominant-baseline="central"
+              font-size={labelSize}
+              font-weight={labelWeight}
+              fill="#282c33"
+              font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+              class="node-label"
+            >{node.label}</text>
+            {/* Subtitle (secondary label) */}
+            {hasSubtitle && (
+              <text
+                x={ncx}
+                y={subtitleY}
+                text-anchor="middle"
+                dominant-baseline="central"
+                font-size="11"
+                font-weight="400"
+                fill="#555"
+                font-family="system-ui, -apple-system, 'Segoe UI', Roboto, sans-serif"
+                class="node-subtitle"
+              >{node.subtitle}</text>
+            )}
+          </a>
+        );
+      })}
+    </g>
+  </svg>
 </div>
+
+<style>
+  .role2-diagram-container {
+    width: 100%;
+    max-width: 1200px;
+    margin: 2rem auto;
+  }
+
+  .role2-diagram-container svg {
+    width: 100%;
+    height: auto;
+    display: block;
+  }
+
+  /* ── Node interaction ── */
+  .node {
+    cursor: pointer;
+  }
+
+  .node .node-rect {
+    transition: fill 150ms ease;
+  }
+
+  .node:hover .node-rect {
+    fill: #F0F2F0;
+  }
+
+  .node:focus {
+    outline: none;
+  }
+
+  .node:focus .node-rect {
+    fill: #F0F2F0;
+  }
+
+  .node:focus .focus-ring {
+    opacity: 1;
+  }
+
+  .node:active .node-rect {
+    fill: #E4E8E4;
+  }
+
+  /* Terminal node keeps its dashed border on hover/focus/active */
+  .node-terminal:hover .node-rect,
+  .node-terminal:focus .node-rect,
+  .node-terminal:active .node-rect {
+    stroke-dasharray: 6 3;
+  }
+
+  /* ── Band interaction ── */
+  .band {
+    cursor: pointer;
+  }
+
+  .band .band-rect {
+    transition: fill 150ms ease, stroke 150ms ease;
+  }
+
+  .band:hover .band-rect {
+    fill: rgba(61, 92, 62, 0.2);
+    stroke: rgba(61, 92, 62, 0.6);
+  }
+
+  .band:focus {
+    outline: none;
+  }
+
+  .band:focus .band-rect {
+    fill: rgba(61, 92, 62, 0.2);
+    stroke: #3D5C3E;
+    stroke-width: 2;
+  }
+
+  .band:focus .band-focus-ring {
+    opacity: 1;
+  }
+
+  .band:active .band-rect {
+    fill: rgba(61, 92, 62, 0.28);
+  }
+</style>
