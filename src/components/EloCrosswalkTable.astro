@@ -1,8 +1,224 @@
 ---
-// Phase 4: implement sortable table from src/data/elo-crosswalk.json
+import eloData from '../data/elo-crosswalk.json';
+
+/* eslint-disable @typescript-eslint/no-explicit-any */
+type EloEntry = {
+  id: string;
+  tlo: string;
+  text: string;
+  primary: string;
+  secondary: string[];
+  status: string;
+};
+
+const elos = eloData as EloEntry[];
+
+const nodeMap: Record<string, { label: string; route: string }> = {
+  'team-development':   { label: 'Team Development & Dynamics',                  route: '/team-development/' },
+  'trauma-integration': { label: 'Trauma System Integration',                    route: '/trauma-integration/' },
+  'clinical-ops':       { label: 'Clinical Ops (Austere)',                       route: '/clinical-ops/' },
+  'austere-prep':       { label: 'Austere Prep / R2RA',                          route: '/nodes/austere-prep/' },
+  'prepare-to-receive': { label: 'Prepare to Receive',                           route: '/nodes/prepare-to-receive/' },
+  'triage':             { label: 'Triage',                                        route: '/nodes/triage/' },
+  'stp-dcr':            { label: 'STP / DCR',                                    route: '/nodes/stp-dcr/' },
+  'frss-dcs':           { label: 'FRSS / DCS',                                   route: '/nodes/frss-dcs/' },
+  'holding':            { label: 'Holding (Silver 48)',                           route: '/nodes/holding/' },
+  'prolonged-holding':  { label: 'Prolonged Holding (Zinc 48)',                  route: '/nodes/prolonged-holding/' },
+  'evac-erc':           { label: 'EVAC / ERC',                                   route: '/nodes/evac-erc/' },
+  'mortuary-affairs':   { label: 'Mortuary Affairs',                             route: '/nodes/mortuary-affairs/' },
+};
 ---
 
-<div class="elo-crosswalk-placeholder" style="border: 2px dashed #3D5C3E; border-radius: 8px; padding: 2rem; text-align: center; color: #3D5C3E; font-family: system-ui, sans-serif;">
-  <strong>ELO Crosswalk Table</strong>
-  <p style="font-size: 0.875rem; margin-top: 0.5rem;">Sortable table implemented in Phase 4.</p>
+<div class="elo-table-wrapper">
+  <table
+    id="elo-crosswalk-table"
+    class="elo-table"
+    aria-label="ELO Crosswalk — click column headers to sort"
+  >
+    <thead>
+      <tr>
+        <th scope="col" data-col="id"      aria-sort="ascending" tabindex="0" class="sortable th-id">ID</th>
+        <th scope="col" data-col="tlo"     aria-sort="none"      tabindex="0" class="sortable th-tlo">TLO</th>
+        <th scope="col" data-col="text"    aria-sort="none"      tabindex="0" class="sortable th-elo">ELO</th>
+        <th scope="col" data-col="primary" aria-sort="none"      tabindex="0" class="sortable th-primary">Primary node</th>
+        <th scope="col"                                                        class="th-secondary">Secondary nodes</th>
+        <th scope="col" data-col="status"  aria-sort="none"      tabindex="0" class="sortable th-status">Status</th>
+      </tr>
+    </thead>
+    <tbody>
+      {elos.map((elo) => {
+        const primaryNode = nodeMap[elo.primary];
+        return (
+          <tr>
+            <td class="elo-id" data-sort={elo.id}>{elo.id}</td>
+            <td data-sort={elo.tlo}>{elo.tlo}</td>
+            <td data-sort={elo.text}>{elo.text}</td>
+            <td data-sort={primaryNode?.label ?? elo.primary}>
+              {primaryNode
+                ? <a href={primaryNode.route}>{primaryNode.label}</a>
+                : elo.primary}
+            </td>
+            <td>
+              {elo.secondary.map((s, i) => {
+                const n = nodeMap[s];
+                return n
+                  ? <span>{i > 0 && ', '}<a href={n.route}>{n.label}</a></span>
+                  : <span>{i > 0 && ', '}{s}</span>;
+              })}
+            </td>
+            <td class={`status-badge status-${elo.status}`} data-sort={elo.status}>{elo.status}</td>
+          </tr>
+        );
+      })}
+    </tbody>
+  </table>
 </div>
+
+<script>
+  const table = document.getElementById('elo-crosswalk-table') as HTMLTableElement | null;
+  if (table) {
+    const sortableHeaders = table.querySelectorAll<HTMLTableCellElement>('th.sortable');
+    // Use ALL headers to compute cell column indices (secondary col is unsortable but shifts indices)
+    const allHeaders = Array.from(table.querySelectorAll<HTMLTableCellElement>('thead th'));
+    let currentCol = 'id';
+    let ascending = true;
+
+    function sortTable(col: string) {
+      const tbody = table!.tBodies[0];
+      const rows = Array.from(tbody.rows);
+
+      if (col === currentCol) {
+        ascending = !ascending;
+      } else {
+        currentCol = col;
+        ascending = true;
+      }
+
+      const colIndex = allHeaders.findIndex(h => h.dataset.col === col);
+
+      rows.sort((a, b) => {
+        const av = a.cells[colIndex]?.dataset.sort ?? '';
+        const bv = b.cells[colIndex]?.dataset.sort ?? '';
+        return ascending ? av.localeCompare(bv) : bv.localeCompare(av);
+      });
+
+      rows.forEach(r => tbody.appendChild(r));
+
+      sortableHeaders.forEach(h => {
+        if (h.dataset.col === col) {
+          h.setAttribute('aria-sort', ascending ? 'ascending' : 'descending');
+        } else {
+          h.setAttribute('aria-sort', 'none');
+        }
+      });
+    }
+
+    sortableHeaders.forEach(th => {
+      th.addEventListener('click', () => sortTable(th.dataset.col!));
+      th.addEventListener('keydown', (e: KeyboardEvent) => {
+        if (e.key === 'Enter' || e.key === ' ') {
+          e.preventDefault();
+          sortTable(th.dataset.col!);
+        }
+      });
+    });
+  }
+</script>
+
+<style>
+  .elo-table-wrapper {
+    overflow-x: auto;
+    margin: 1.5rem 0;
+  }
+
+  .elo-table {
+    width: 100%;
+    border-collapse: collapse;
+    font-size: var(--sl-text-sm, 0.875rem);
+    line-height: 1.5;
+  }
+
+  .elo-table thead {
+    background: var(--sl-color-bg-nav, #f4f4f4);
+  }
+
+  .elo-table th,
+  .elo-table td {
+    padding: 0.5rem 0.75rem;
+    border: 1px solid var(--sl-color-hairline, #ddd);
+    vertical-align: top;
+    text-align: left;
+  }
+
+  .elo-table th {
+    font-weight: 600;
+    white-space: nowrap;
+    color: var(--sl-color-text-invert, inherit);
+  }
+
+  th.sortable {
+    cursor: pointer;
+    user-select: none;
+    position: relative;
+    padding-right: 1.5rem;
+  }
+
+  th.sortable::after {
+    content: ' ⇅';
+    font-size: 0.75em;
+    opacity: 0.5;
+    position: absolute;
+    right: 0.4rem;
+  }
+
+  th.sortable[aria-sort='ascending']::after  { content: ' ↑'; opacity: 1; }
+  th.sortable[aria-sort='descending']::after { content: ' ↓'; opacity: 1; }
+
+  th.sortable:hover,
+  th.sortable:focus {
+    background: var(--sl-color-accent-low, rgba(61, 92, 62, 0.15));
+    outline: 2px solid var(--sl-color-accent, #3D5C3E);
+    outline-offset: -2px;
+  }
+
+  .elo-table tbody tr:nth-child(even) {
+    background: var(--sl-color-bg-sidebar, rgba(0,0,0,0.03));
+  }
+
+  .elo-table tbody tr:hover {
+    background: var(--sl-color-accent-low, rgba(61,92,62,0.08));
+  }
+
+  .elo-id {
+    font-family: var(--sl-font-mono, monospace);
+    font-weight: 600;
+    white-space: nowrap;
+  }
+
+  .th-id       { width: 5rem; }
+  .th-tlo      { width: 9rem; }
+  .th-elo      { min-width: 18rem; }
+  .th-primary  { width: 11rem; }
+  .th-secondary { min-width: 12rem; }
+  .th-status   { width: 7rem; }
+
+  .status-badge {
+    font-size: 0.75rem;
+    font-weight: 600;
+    white-space: nowrap;
+    text-transform: capitalize;
+  }
+
+  .status-drafted   { color: #555; }
+  .status-reviewed  { color: #3D5C3E; }
+  .status-published { color: #1a4d1a; }
+
+  .elo-table a {
+    color: var(--sl-color-accent, #3D5C3E);
+    text-decoration: none;
+  }
+
+  .elo-table a:hover {
+    text-decoration: underline;
+  }
+</style>

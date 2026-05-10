@@ -6,6 +6,9 @@ export default defineConfig({
   site: 'https://usmc-arsc.org',
   integrations: [
     starlight({
+      components: {
+        Footer: './src/components/Footer.astro',
+      },
       title: 'ARSC USMC Field Reference',
       description:
         'A public, web-based reference and onboarding resource for 1st Medical Battalion personnel that organizes the Austere Resuscitative Surgical Care (ARSC) framework around the Marine Corps Role 2 patient-flow construct.',

@@ -4,7 +4,7 @@ A public, web-based reference and onboarding resource for 1st Medical Battalion 
 
 **Live site:** [usmc-arsc.org](https://usmc-arsc.org) *(domain pending registration)*
 
-**Status:** v1 scaffold — content population in progress.
+**Status:** v1 complete — interactive diagram, all content pages, ELO crosswalk. Pending CDR Ford's content review and TBD-filling pass.
 
 ---
 
@@ -69,9 +69,22 @@ OPSEC_CHECKLIST.md Review checklist for all content before publication
 
 ## Contributing
 
-See [CONTRIBUTING.md](src/content/docs/contributing.mdx) or the live [Contributing page](/contributing/) on the site.
+See the live [Contributing page](https://usmc-arsc.org/contributing/) on the site for the full workflow.
 
-All contributions are reviewed against the OPSEC checklist before merge.
+**Short version:**
+
+1. Fork the repo and create a descriptive branch.
+2. Edit or add MDX files under `src/content/docs/`.
+3. Run the OPSEC checklist (`OPSEC_CHECKLIST.md`) on any new or substantively changed page.
+4. Submit a pull request with a description of the change and source citations.
+
+To add a Standards document (SOP, expectation letter, or training standard):
+
+1. Place the PDF at `public/standards/{category}/{slug}.pdf` (after OPSEC review).
+2. Create a page at `src/content/docs/standards/{category}/{slug}.mdx` using the `PdfEmbed` component — see `src/content/docs/standards/_template.mdx` for the pattern.
+3. Add the page to the sidebar group in `astro.config.mjs`.
+
+All contributions are reviewed for accuracy, OPSEC compliance, doctrinal alignment, and editorial consistency before merging. Pull requests that lack source citation will be returned for revision.
 
 ---
 

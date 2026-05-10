@@ -1,0 +1,17 @@
+---
+import StarlightPage from '@astrojs/starlight/components/StarlightPage.astro';
+---
+
+<StarlightPage frontmatter={{ title: 'Page not found', description: 'The page you requested could not be found.' }}>
+  <p>The page you were looking for does not exist or may have moved.</p>
+
+  <p>
+    <a href="/">Return to the homepage</a> to navigate via the interactive Role 2 diagram,
+    or use the sidebar to find a specific page.
+  </p>
+
+  <p>
+    If you followed a link that should work, please report it via the
+    <a href="/contributing/">Contributing</a> page.
+  </p>
+</StarlightPage>
