@@ -241,6 +241,14 @@
       "style": "dashed",
       "label": null,
       "waypoints": [[530, 380], [530, 490], [935, 490]]
+    },
+    {
+      "id": "e12",
+      "source": "frss-dcs",
+      "target": "holding",
+      "style": "solid",
+      "label": null,
+      "waypoints": [[790, 240], [790, 440]]
     }
   ]
 }
