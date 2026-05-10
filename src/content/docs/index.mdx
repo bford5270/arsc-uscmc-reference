@@ -6,11 +6,37 @@ hero:
   tagline: ARSC content, organized around the Role 2 patient flow.
   actions:
     - text: Start with the diagram
-      link: '#patient-flow'
+      link: "#patient-flow"
       icon: right-arrow
     - text: New here? Read this first
       link: /about/
       variant: minimal
 ---
 
-{/* Content populated in Phase 2 */}
+import Role2Diagram from '../../components/Role2Diagram.astro';
+
+## What this site is
+
+A working reference for personnel assigned to USMC Role 2 capability sets — Shock Trauma Platoon (STP), Forward Resuscitative Surgical System (FRSS), and Holding. The content is organized around the patient-flow construct rather than a list of learning objectives, because that is how the work actually happens. Every node in the flow links to the doctrine, equipment, decision points, and learning objectives that apply at that point.
+
+The site exists so that a sailor can be sent a single link before checking in and arrive with a working mental model of the unit.
+
+## What this site is not
+
+Not an official Department of Defense, Navy, Marine Corps, or Joint Trauma System publication. Not a substitute for canonical doctrine. Not a repository of classified or controlled-unclassified content. When this site and current doctrine disagree, current doctrine wins.
+
+## Patient flow
+
+<div id="patient-flow">
+  <Role2Diagram />
+</div>
+
+## How to use this site
+
+**If you are a new check-in:** start with the diagram above. Click the node closest to your billet and read its page. Then skim the three cross-cutting bands (Team Development & Dynamics, Trauma System Integration, Clinical Operations in the Austere Environment) on either side of the flow. Read the welcome and expectations document under [Standards & Expectations](/standards/).
+
+**If you need a specific SOP, expectations document, or qualification standard:** go to [Standards & Expectations](/standards/). SOPs (MASCAL, blood, sterilization, comms), expectation letters, and training/qualification standards are all there as embedded PDFs.
+
+**If you are a training lead:** open the [ELO Crosswalk](/elo-crosswalk/) and the [Doctrine Index](/doctrine/) for sourcing, plus [Training & Qualifications](/standards/training/) for command-published standards.
+
+**If you have found an error or want to contribute:** see the [Contributing](/contributing/) page.

@@ -3,4 +3,24 @@ title: ELO Crosswalk
 description: Sortable mapping of every ARSC Enabling Learning Objective to its primary and secondary nodes in the Role 2 patient flow.
 ---
 
-{/* Content populated in Phase 2 */}
+import EloCrosswalkTable from '../../components/EloCrosswalkTable.astro';
+
+## Purpose
+
+This page maps every ARSC Enabling Learning Objective (ELO) to the node(s) in the Role 2 patient flow where it primarily applies. It is the audit view for the site: a way to see at a glance which ELOs are addressed where, and to identify gaps as content matures.
+
+## How to read it
+
+Each row is one ELO. The "Primary node" column lists the page where this ELO receives its main treatment. "Secondary nodes" lists pages where the ELO appears with less depth, usually because it expresses differently in those contexts. "Coverage status" tracks the maturity of the content: Not started, Drafted, Reviewed, Published.
+
+## Crosswalk
+
+<EloCrosswalkTable />
+
+## Source data
+
+Underlying data lives in `src/data/elo-crosswalk.json`. To update an ELO's coverage or mapping, edit the JSON file and submit a pull request.
+
+## Note on TLO completeness
+
+The ARSC Joint Training Standard includes additional Terminal Learning Objectives beyond the four currently captured here (Team Development & Dynamics, Trauma System Integration, Clinical Operations in the Austere Environment, Prepare to Receive). The patient-flow diagram on the homepage already implies content for Receive, Treat, Disposition, and Recovery — which the full ARSC ELT covers as separate TLOs. Incorporation of those TLOs is tracked as a known gap.
