@@ -1,0 +1,22 @@
+/* Marine Corps green accent — #3D5C3E → hsl(122, 20%, 30%) */
+:root {
+  --sl-color-accent-low: hsl(122, 20%, 20%);
+  --sl-color-accent: hsl(122, 20%, 30%);
+  --sl-color-accent-high: hsl(122, 20%, 75%);
+}
+
+:root[data-theme='light'] {
+  --sl-color-accent-low: hsl(122, 20%, 85%);
+  --sl-color-accent: hsl(122, 20%, 30%);
+  --sl-color-accent-high: hsl(122, 20%, 20%);
+}
+
+/* Site-wide footer disclaimer */
+.site-footer {
+  border-top: 1px solid var(--sl-color-hairline);
+  padding: 1.5rem var(--sl-content-pad-x);
+  margin-top: 2rem;
+  font-size: var(--sl-text-sm);
+  color: var(--sl-color-gray-3);
+  line-height: 1.6;
+}

@@ -1,0 +1,22 @@
+---
+// Phase 4: implement per PdfEmbed component specification in CLAUDE_CODE_KICKOFF.md
+interface Props {
+  src: string;
+  title: string;
+  version?: string;
+  effectiveDate?: string;
+  lastReviewed?: string;
+  owner?: string;
+  pages?: number;
+  height?: string;
+}
+
+const { src, title } = Astro.props;
+---
+
+<div class="pdf-embed-placeholder" style="border: 2px dashed #3D5C3E; border-radius: 8px; padding: 2rem; text-align: center; color: #3D5C3E; font-family: system-ui, sans-serif;">
+  <strong>{title}</strong>
+  <p style="font-size: 0.875rem; margin-top: 0.5rem;">
+    PDF embed implemented in Phase 4. Document: <code>{src}</code>
+  </p>
+</div>
