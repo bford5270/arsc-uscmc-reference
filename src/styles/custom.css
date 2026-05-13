@@ -1,17 +1,154 @@
-/* Marine Corps green accent — #3D5C3E → hsl(122, 20%, 30%) */
+/* ============================================================
+   ARSC USMC Field Reference
+   Role 2 Forward design system applied to Starlight.
+   - Light mode → manual theme (coyote paper + olive ink)
+   - Dark mode  → console theme (dark olive + coyote ink)
+   ============================================================ */
+
+@import url('https://fonts.googleapis.com/css2?family=Roboto+Slab:wght@400;500;700&family=IBM+Plex+Sans:wght@400;500;600&family=IBM+Plex+Mono:wght@400;500&display=swap');
+
 :root {
-  --sl-color-accent-low: hsl(122, 20%, 20%);
-  --sl-color-accent: hsl(122, 20%, 30%);
-  --sl-color-accent-high: hsl(122, 20%, 75%);
+  --r2f-font-display: 'Roboto Slab', Georgia, 'Times New Roman', serif;
+  --r2f-font-body: 'IBM Plex Sans', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --r2f-font-mono: 'IBM Plex Mono', ui-monospace, 'SF Mono', Menlo, monospace;
+
+  --signal-red: #B33A3A;
+  --signal-amber: #C99A2E;
+  --signal-green: #6B7F4F;
+  --signal-blue: #5B7A8B;
 }
 
+/* --- Dark mode (Starlight default) → console theme --- */
+:root {
+  /* Role 2 Forward console tokens */
+  --r2f-surface-0: #161814;
+  --r2f-surface-1: #1E211C;
+  --r2f-surface-2: #22251F;
+  --r2f-surface-3: #2D3128;
+  --r2f-ink-1: #E8DCC4;
+  --r2f-ink-2: #C8B295;
+  --r2f-ink-3: #8E8068;
+  --r2f-accent: #C8B295;
+  --r2f-border-1: #2D3128;
+  --r2f-border-2: #3F4438;
+
+  /* Map Role 2 Forward → Starlight tokens (dark) */
+  --sl-color-bg: var(--r2f-surface-0);
+  --sl-color-bg-nav: var(--r2f-surface-1);
+  --sl-color-bg-sidebar: var(--r2f-surface-1);
+  --sl-color-bg-inline-code: var(--r2f-surface-2);
+  --sl-color-bg-accent: var(--r2f-accent);
+
+  --sl-color-text: var(--r2f-ink-1);
+  --sl-color-text-accent: var(--r2f-accent);
+  --sl-color-text-invert: var(--r2f-surface-0);
+
+  --sl-color-white: var(--r2f-ink-1);
+  --sl-color-gray-1: #D5C2A8;
+  --sl-color-gray-2: var(--r2f-ink-2);
+  --sl-color-gray-3: var(--r2f-ink-3);
+  --sl-color-gray-4: #6B6253;
+  --sl-color-gray-5: #4A4438;
+  --sl-color-gray-6: var(--r2f-surface-3);
+  --sl-color-gray-7: var(--r2f-surface-1);
+  --sl-color-black: var(--r2f-surface-0);
+
+  --sl-color-hairline: var(--r2f-border-1);
+  --sl-color-hairline-light: var(--r2f-border-1);
+  --sl-color-hairline-shade: var(--r2f-border-2);
+
+  --sl-color-accent-low: #54653D;
+  --sl-color-accent: var(--r2f-accent);
+  --sl-color-accent-high: #E8DCC4;
+
+  --sl-color-red: var(--signal-red);
+  --sl-color-orange: var(--signal-amber);
+  --sl-color-green: var(--signal-green);
+  --sl-color-blue: var(--signal-blue);
+
+  --sl-font: var(--r2f-font-body);
+  --sl-font-system: var(--r2f-font-body);
+  --sl-font-system-mono: var(--r2f-font-mono);
+}
+
+/* --- Light mode → manual theme --- */
 :root[data-theme='light'] {
-  --sl-color-accent-low: hsl(122, 20%, 85%);
-  --sl-color-accent: hsl(122, 20%, 30%);
-  --sl-color-accent-high: hsl(122, 20%, 20%);
+  --r2f-surface-0: #E8DCC4;
+  --r2f-surface-1: #F1E8D4;
+  --r2f-surface-2: #DCCDB1;
+  --r2f-surface-3: #C8B295;
+  --r2f-ink-1: #2A2218;
+  --r2f-ink-2: #4A3F30;
+  --r2f-ink-3: #6B5E4A;
+  --r2f-accent: #3F4A33;
+  --r2f-border-1: #C8B295;
+  --r2f-border-2: #A88B6E;
+
+  --sl-color-bg: var(--r2f-surface-0);
+  --sl-color-bg-nav: var(--r2f-surface-1);
+  --sl-color-bg-sidebar: var(--r2f-surface-1);
+  --sl-color-bg-inline-code: var(--r2f-surface-2);
+  --sl-color-bg-accent: var(--r2f-accent);
+
+  --sl-color-text: var(--r2f-ink-1);
+  --sl-color-text-accent: var(--r2f-accent);
+  --sl-color-text-invert: var(--r2f-surface-1);
+
+  --sl-color-white: var(--r2f-ink-1);
+  --sl-color-gray-1: #1F1A12;
+  --sl-color-gray-2: var(--r2f-ink-2);
+  --sl-color-gray-3: var(--r2f-ink-3);
+  --sl-color-gray-4: #8A7B62;
+  --sl-color-gray-5: #B09877;
+  --sl-color-gray-6: var(--r2f-surface-3);
+  --sl-color-gray-7: var(--r2f-surface-1);
+  --sl-color-black: #1F1A12;
+
+  --sl-color-hairline: var(--r2f-border-1);
+  --sl-color-hairline-light: var(--r2f-border-1);
+  --sl-color-hairline-shade: var(--r2f-border-2);
+
+  --sl-color-accent-low: #DCCDB1;
+  --sl-color-accent: var(--r2f-accent);
+  --sl-color-accent-high: #1F2418;
 }
 
-/* Site-wide footer disclaimer */
+/* --- Typography — slab-serif display + humanist body --- */
+:root,
+:root[data-theme='light'] {
+  --sl-text-h1: 2.5rem;
+  --sl-text-h2: 2rem;
+  --sl-text-h3: 1.5rem;
+  --sl-text-h4: 1.25rem;
+}
+
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+.sl-markdown-content h3,
+.sl-markdown-content h4,
+.site-title,
+h1, h2, h3, h4 {
+  font-family: var(--r2f-font-display);
+  letter-spacing: -0.01em;
+  font-weight: 500;
+}
+.sl-markdown-content h1,
+.sl-markdown-content h2,
+h1, h2 { font-weight: 700; }
+
+body,
+.sl-markdown-content {
+  font-family: var(--r2f-font-body);
+}
+
+code, kbd, pre, samp {
+  font-family: var(--r2f-font-mono);
+}
+
+/* Conservative corner radii per design system */
+.card, .sl-card, button, [class*="Button"] { border-radius: 4px; }
+
+/* --- Site footer (unchanged structure, retuned to tokens) --- */
 .site-footer {
   border-top: 1px solid var(--sl-color-hairline);
   padding: 1.5rem var(--sl-content-pad-x);
