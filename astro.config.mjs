@@ -106,6 +106,10 @@ export default defineConfig({
           ],
         },
         {
+          label: 'Resources',
+          items: [{ label: 'Resource Library', link: '/library/' }],
+        },
+        {
           label: 'Project',
           items: [{ label: 'Changelog', link: '/changelog/' }],
         },
