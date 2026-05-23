@@ -1,0 +1,652 @@
+---
+import scenarios from '../data/triage-game-scenarios.json';
+const scenariosJson = JSON.stringify(scenarios);
+---
+
+<div id="tg-root">
+  <!-- Mode selector -->
+  <div id="tg-mode-select">
+    <p class="tg-intro">
+      This tabletop tool presents 15 casualty vignettes. Apply the START triage algorithm to each.
+      Choose a mode before starting.
+    </p>
+    <div class="tg-mode-cards">
+      <button class="tg-mode-card" id="btn-mode-a">
+        <span class="tg-mode-title">Mode A — Individual</span>
+        <span class="tg-mode-desc">Work through all 15 casualties solo. Immediate feedback and score at the end.</span>
+      </button>
+      <button class="tg-mode-card" id="btn-mode-b">
+        <span class="tg-mode-title">Mode B — Tabletop / Facilitator</span>
+        <span class="tg-mode-desc">Display one vignette at a time for group discussion. Reveal answer on demand. No scoring.</span>
+      </button>
+    </div>
+  </div>
+
+  <!-- START algorithm reference (collapsed by default) -->
+  <details id="tg-algorithm" class="tg-details">
+    <summary>START Algorithm Reference</summary>
+    <ol class="tg-algo-steps">
+      <li><strong>Can the casualty walk?</strong> YES → <span class="chip t3">T3 Minimal</span></li>
+      <li><strong>Is the casualty breathing?</strong>
+        <ul>
+          <li>NO → Reposition airway → Still no? → <span class="chip t4">T4 Expectant</span></li>
+          <li>NO → Reposition airway → Now breathing? → <span class="chip t1">T1 Immediate</span></li>
+        </ul>
+      </li>
+      <li><strong>Respiratory rate &gt; 30/min</strong> → <span class="chip t1">T1 Immediate</span></li>
+      <li><strong>No radial pulse OR cap refill &gt; 2 sec</strong> → <span class="chip t1">T1 Immediate</span></li>
+      <li><strong>Cannot follow simple commands</strong> → <span class="chip t1">T1 Immediate</span></li>
+      <li>All above normal → <span class="chip t2">T2 Delayed</span></li>
+    </ol>
+  </details>
+
+  <!-- Mode A game area -->
+  <div id="tg-mode-a" class="tg-hidden">
+    <div class="tg-header">
+      <span id="tga-progress" class="tg-progress">Casualty 1 of 15</span>
+      <button class="tg-btn-small" id="tga-restart">↺ Restart</button>
+    </div>
+
+    <div class="tg-card" id="tga-card">
+      <div class="tg-narrative" id="tga-narrative"></div>
+      <div class="tg-vitals-grid" id="tga-vitals"></div>
+    </div>
+
+    <div class="tg-choices" id="tga-choices">
+      <button class="tg-choice t1" data-answer="T1">T1 — Immediate</button>
+      <button class="tg-choice t2" data-answer="T2">T2 — Delayed</button>
+      <button class="tg-choice t3" data-answer="T3">T3 — Minimal</button>
+      <button class="tg-choice t4" data-answer="T4">T4 — Expectant</button>
+    </div>
+
+    <div class="tg-feedback tg-hidden" id="tga-feedback">
+      <div class="tg-feedback-result" id="tga-result-badge"></div>
+      <div class="tg-feedback-body">
+        <p><strong>Correct answer:</strong> <span id="tga-correct-answer"></span></p>
+        <p><strong>Determining criterion:</strong> <span id="tga-criterion"></span></p>
+        <p class="tg-teaching" id="tga-teaching"></p>
+      </div>
+      <button class="tg-btn" id="tga-next">Next Casualty →</button>
+    </div>
+
+    <div class="tg-summary tg-hidden" id="tga-summary">
+      <h3>Exercise Complete</h3>
+      <p class="tg-score" id="tga-score"></p>
+      <div id="tga-missed"></div>
+      <button class="tg-btn" id="tga-restart2">↺ Restart (randomized order)</button>
+    </div>
+  </div>
+
+  <!-- Mode B game area -->
+  <div id="tg-mode-b" class="tg-hidden">
+    <div class="tg-header">
+      <span class="tg-progress">Facilitator Mode</span>
+      <div class="tg-jump">
+        <label for="tgb-jump-select">Jump to:</label>
+        <select id="tgb-jump-select"></select>
+      </div>
+      <button class="tg-btn-small" id="tgb-restart">↺ Restart</button>
+    </div>
+
+    <div class="tg-card" id="tgb-card">
+      <div class="tg-cas-num" id="tgb-cas-num"></div>
+      <div class="tg-narrative" id="tgb-narrative"></div>
+      <div class="tg-vitals-grid" id="tgb-vitals"></div>
+    </div>
+
+    <div class="tg-mode-b-controls">
+      <button class="tg-btn" id="tgb-reveal">Reveal Answer</button>
+      <button class="tg-btn tg-btn-outline" id="tgb-next">Next Casualty →</button>
+    </div>
+
+    <div class="tg-feedback tg-hidden" id="tgb-feedback">
+      <div class="tg-feedback-result" id="tgb-result-badge"></div>
+      <div class="tg-feedback-body">
+        <p><strong>Determining criterion:</strong> <span id="tgb-criterion"></span></p>
+        <p class="tg-teaching" id="tgb-teaching"></p>
+      </div>
+    </div>
+
+    <div class="tg-complete tg-hidden" id="tgb-complete">
+      <p>All 15 casualties complete.</p>
+      <button class="tg-btn" id="tgb-restart2">↺ Restart</button>
+    </div>
+  </div>
+</div>
+
+<style>
+  #tg-root {
+    font-family: inherit;
+    max-width: 720px;
+    margin: 0 auto;
+  }
+
+  .tg-intro {
+    margin-bottom: 1.25rem;
+    color: var(--sl-color-gray-2);
+  }
+
+  .tg-mode-cards {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 1rem;
+    margin-bottom: 1.5rem;
+  }
+
+  @media (max-width: 540px) {
+    .tg-mode-cards { grid-template-columns: 1fr; }
+  }
+
+  .tg-mode-card {
+    background: var(--sl-color-gray-6);
+    border: 2px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    cursor: pointer;
+    text-align: left;
+    display: flex;
+    flex-direction: column;
+    gap: 0.5rem;
+    transition: border-color 0.15s, background 0.15s;
+  }
+
+  .tg-mode-card:hover {
+    border-color: var(--sl-color-accent);
+    background: var(--sl-color-gray-5);
+  }
+
+  .tg-mode-title {
+    font-weight: 700;
+    font-size: 1rem;
+    color: var(--sl-color-white);
+  }
+
+  .tg-mode-desc {
+    font-size: 0.875rem;
+    color: var(--sl-color-gray-2);
+    line-height: 1.4;
+  }
+
+  .tg-details {
+    margin-bottom: 1.5rem;
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 0.75rem 1rem;
+    background: var(--sl-color-gray-6);
+  }
+
+  .tg-details summary {
+    cursor: pointer;
+    font-weight: 600;
+    color: var(--sl-color-gray-2);
+  }
+
+  .tg-algo-steps {
+    margin: 0.75rem 0 0;
+    padding-left: 1.25rem;
+    line-height: 1.8;
+  }
+
+  .tg-algo-steps ul {
+    margin: 0;
+    padding-left: 1.25rem;
+  }
+
+  .chip {
+    display: inline-block;
+    padding: 0.1em 0.5em;
+    border-radius: 4px;
+    font-weight: 700;
+    font-size: 0.85em;
+  }
+
+  .chip.t1 { background: #dc2626; color: #fff; }
+  .chip.t2 { background: #ca8a04; color: #fff; }
+  .chip.t3 { background: #16a34a; color: #fff; }
+  .chip.t4 { background: #374151; color: #fff; }
+
+  .tg-header {
+    display: flex;
+    align-items: center;
+    gap: 1rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
+  .tg-progress {
+    font-weight: 700;
+    color: var(--sl-color-white);
+    flex: 1;
+  }
+
+  .tg-jump {
+    display: flex;
+    align-items: center;
+    gap: 0.5rem;
+    font-size: 0.875rem;
+  }
+
+  .tg-jump select {
+    background: var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-gray-4);
+    color: var(--sl-color-white);
+    border-radius: 4px;
+    padding: 0.25rem 0.5rem;
+    cursor: pointer;
+  }
+
+  .tg-card {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .tg-cas-num {
+    font-size: 0.8rem;
+    font-weight: 700;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3);
+    margin-bottom: 0.5rem;
+  }
+
+  .tg-narrative {
+    font-size: 1rem;
+    line-height: 1.6;
+    margin-bottom: 1rem;
+    color: var(--sl-color-white);
+  }
+
+  .tg-vitals-grid {
+    display: grid;
+    grid-template-columns: repeat(auto-fill, minmax(180px, 1fr));
+    gap: 0.5rem;
+  }
+
+  .tg-vital {
+    background: var(--sl-color-gray-5);
+    border-radius: 6px;
+    padding: 0.4rem 0.6rem;
+    font-size: 0.8rem;
+    line-height: 1.3;
+  }
+
+  .tg-vital-label {
+    font-weight: 600;
+    color: var(--sl-color-gray-3);
+    display: block;
+    font-size: 0.7rem;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+  }
+
+  .tg-vital-val {
+    color: var(--sl-color-white);
+  }
+
+  .tg-choices {
+    display: grid;
+    grid-template-columns: 1fr 1fr;
+    gap: 0.75rem;
+    margin-bottom: 1rem;
+  }
+
+  @media (max-width: 400px) {
+    .tg-choices { grid-template-columns: 1fr; }
+  }
+
+  .tg-choice {
+    padding: 0.75rem 1rem;
+    border: 2px solid transparent;
+    border-radius: 8px;
+    font-weight: 700;
+    font-size: 0.95rem;
+    cursor: pointer;
+    transition: opacity 0.15s, transform 0.1s;
+    color: #fff;
+  }
+
+  .tg-choice:active { transform: scale(0.97); }
+  .tg-choice.t1 { background: #dc2626; }
+  .tg-choice.t2 { background: #ca8a04; }
+  .tg-choice.t3 { background: #16a34a; }
+  .tg-choice.t4 { background: #374151; }
+  .tg-choice:disabled { opacity: 0.4; cursor: not-allowed; }
+  .tg-choice.selected-correct { outline: 3px solid #fff; }
+  .tg-choice.selected-wrong { opacity: 0.5; }
+
+  .tg-feedback {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    margin-bottom: 1rem;
+  }
+
+  .tg-feedback-result {
+    font-size: 1.1rem;
+    font-weight: 700;
+    margin-bottom: 0.75rem;
+  }
+
+  .tg-feedback-body p {
+    margin: 0.3rem 0;
+    font-size: 0.9rem;
+  }
+
+  .tg-teaching {
+    margin-top: 0.75rem !important;
+    padding: 0.75rem;
+    background: var(--sl-color-gray-5);
+    border-radius: 6px;
+    line-height: 1.5;
+    color: var(--sl-color-gray-2);
+  }
+
+  .tg-btn {
+    display: inline-block;
+    margin-top: 0.75rem;
+    padding: 0.6rem 1.25rem;
+    background: var(--sl-color-accent);
+    color: var(--sl-color-accent-high);
+    border: none;
+    border-radius: 6px;
+    font-weight: 700;
+    font-size: 0.9rem;
+    cursor: pointer;
+    transition: opacity 0.15s;
+  }
+
+  .tg-btn:hover { opacity: 0.88; }
+
+  .tg-btn-outline {
+    background: transparent;
+    border: 2px solid var(--sl-color-accent);
+    color: var(--sl-color-accent);
+  }
+
+  .tg-btn-small {
+    padding: 0.3rem 0.75rem;
+    background: var(--sl-color-gray-5);
+    color: var(--sl-color-gray-2);
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 5px;
+    font-size: 0.8rem;
+    cursor: pointer;
+    transition: background 0.15s;
+  }
+
+  .tg-btn-small:hover { background: var(--sl-color-gray-4); }
+
+  .tg-mode-b-controls {
+    display: flex;
+    gap: 0.75rem;
+    flex-wrap: wrap;
+    margin-bottom: 1rem;
+  }
+
+  .tg-mode-b-controls .tg-btn { margin-top: 0; }
+
+  .tg-summary {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 1.5rem;
+  }
+
+  .tg-summary h3 { margin-top: 0; }
+
+  .tg-score {
+    font-size: 1.5rem;
+    font-weight: 700;
+    color: var(--sl-color-white);
+    margin-bottom: 1rem;
+  }
+
+  .tg-missed-item {
+    border-left: 3px solid #dc2626;
+    padding: 0.5rem 0.75rem;
+    margin-bottom: 0.5rem;
+    background: var(--sl-color-gray-5);
+    border-radius: 0 6px 6px 0;
+    font-size: 0.85rem;
+  }
+
+  .tg-complete {
+    background: var(--sl-color-gray-6);
+    border: 1px solid var(--sl-color-gray-5);
+    border-radius: 8px;
+    padding: 1.25rem;
+    text-align: center;
+  }
+
+  .tg-hidden { display: none !important; }
+</style>
+
+<script define:vars={{ scenariosJson }}>
+const scenarios = JSON.parse(scenariosJson);
+
+// ── Utilities ──────────────────────────────────────────────────────────────
+
+function shuffle(arr) {
+  const a = [...arr];
+  for (let i = a.length - 1; i > 0; i--) {
+    const j = Math.floor(Math.random() * (i + 1));
+    [a[i], a[j]] = [a[j], a[i]];
+  }
+  return a;
+}
+
+function vitalsHTML(v) {
+  const rows = [];
+  const vital = (label, val) =>
+    `<div class="tg-vital"><span class="tg-vital-label">${label}</span><span class="tg-vital-val">${val}</span></div>`;
+
+  rows.push(vital('Ambulatory', v.ambulatory ? 'Yes' : 'No'));
+  if (!v.ambulatory) {
+    const rrLabel = v.rr === 0 ? 'Apneic' : `${v.rr}/min (${v.rrQuality})`;
+    rows.push(vital('Resp Rate', rrLabel));
+    rows.push(vital('Radial Pulse', v.radialPulse));
+    rows.push(vital('Cap Refill', v.capRefill));
+    rows.push(vital('Follows Commands', v.followsCommands ? 'Yes' : 'No'));
+    if (v.airwayRepositionedAndNowBreathing)
+      rows.push(vital('Airway Note', 'Breathing restored after repositioning'));
+    if (v.airwayRepositionedAndStillApneic)
+      rows.push(vital('Airway Note', 'Apneic despite repositioning'));
+  }
+  return rows.join('');
+}
+
+function answerChip(ans) {
+  const labels = { T1: 'T1 — Immediate', T2: 'T2 — Delayed', T3: 'T3 — Minimal', T4: 'T4 — Expectant' };
+  const cls = ans.toLowerCase();
+  return `<span class="chip ${cls}">${labels[ans]}</span>`;
+}
+
+// ── Mode selector ──────────────────────────────────────────────────────────
+
+const modeSelect = document.getElementById('tg-mode-select');
+const modeA = document.getElementById('tg-mode-a');
+const modeB = document.getElementById('tg-mode-b');
+
+document.getElementById('btn-mode-a').addEventListener('click', () => {
+  modeSelect.classList.add('tg-hidden');
+  modeA.classList.remove('tg-hidden');
+  initModeA();
+});
+
+document.getElementById('btn-mode-b').addEventListener('click', () => {
+  modeSelect.classList.add('tg-hidden');
+  modeB.classList.remove('tg-hidden');
+  initModeB();
+});
+
+// ── Mode A ─────────────────────────────────────────────────────────────────
+
+let modeAState = {};
+
+function initModeA(randomize = false) {
+  modeAState = {
+    queue: randomize ? shuffle(scenarios) : [...scenarios],
+    index: 0,
+    correct: 0,
+    wrong: [],
+    answered: false,
+  };
+  document.getElementById('tga-summary').classList.add('tg-hidden');
+  document.getElementById('tga-feedback').classList.add('tg-hidden');
+  document.getElementById('tga-choices').classList.remove('tg-hidden');
+  renderModeA();
+}
+
+function renderModeA() {
+  const { queue, index } = modeAState;
+  if (index >= queue.length) {
+    showModeASummary();
+    return;
+  }
+  const s = queue[index];
+  document.getElementById('tga-progress').textContent = `Casualty ${index + 1} of ${queue.length}`;
+  document.getElementById('tga-narrative').textContent = s.narrative;
+  document.getElementById('tga-vitals').innerHTML = vitalsHTML(s.vitals);
+  document.getElementById('tga-feedback').classList.add('tg-hidden');
+
+  const choices = document.querySelectorAll('.tg-choice');
+  choices.forEach(btn => {
+    btn.disabled = false;
+    btn.classList.remove('selected-correct', 'selected-wrong');
+  });
+}
+
+document.querySelectorAll('.tg-choice').forEach(btn => {
+  btn.addEventListener('click', () => {
+    if (modeAState.answered) return;
+    modeAState.answered = true;
+
+    const chosen = btn.dataset.answer;
+    const s = modeAState.queue[modeAState.index];
+    const correct = chosen === s.answer;
+
+    if (correct) {
+      modeAState.correct++;
+      btn.classList.add('selected-correct');
+    } else {
+      btn.classList.add('selected-wrong');
+      modeAState.wrong.push({ scenario: s, chosen });
+      document.querySelector(`.tg-choice[data-answer="${s.answer}"]`).classList.add('selected-correct');
+    }
+
+    document.querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
+
+    const feedback = document.getElementById('tga-feedback');
+    document.getElementById('tga-result-badge').innerHTML =
+      correct ? '✓ Correct' : `✗ Incorrect — you selected ${answerChip(chosen)}`;
+    document.getElementById('tga-result-badge').style.color = correct ? '#16a34a' : '#dc2626';
+    document.getElementById('tga-correct-answer').innerHTML = answerChip(s.answer);
+    document.getElementById('tga-criterion').textContent = s.criterion;
+    document.getElementById('tga-teaching').textContent = s.teaching;
+    feedback.classList.remove('tg-hidden');
+  });
+});
+
+document.getElementById('tga-next').addEventListener('click', () => {
+  modeAState.index++;
+  modeAState.answered = false;
+  renderModeA();
+});
+
+document.getElementById('tga-restart').addEventListener('click', () => initModeA(false));
+document.getElementById('tga-restart2').addEventListener('click', () => initModeA(true));
+
+function showModeASummary() {
+  document.getElementById('tga-choices').classList.add('tg-hidden');
+  document.getElementById('tga-feedback').classList.add('tg-hidden');
+
+  const total = modeAState.queue.length;
+  const correct = modeAState.correct;
+  const score = document.getElementById('tga-score');
+  score.textContent = `${correct} / ${total} correct`;
+  score.style.color = correct === total ? '#16a34a' : correct >= total * 0.8 ? '#ca8a04' : '#dc2626';
+
+  const missedEl = document.getElementById('tga-missed');
+  if (modeAState.wrong.length === 0) {
+    missedEl.innerHTML = '<p>All casualties correctly triaged.</p>';
+  } else {
+    missedEl.innerHTML = '<p><strong>Review:</strong></p>' +
+      modeAState.wrong.map(({ scenario, chosen }) =>
+        `<div class="tg-missed-item">
+          <strong>Casualty ${scenario.id}</strong>: You selected ${answerChip(chosen)}, correct is ${answerChip(scenario.answer)}<br>
+          <em>${scenario.criterion}</em> — ${scenario.teaching}
+        </div>`
+      ).join('');
+  }
+
+  document.getElementById('tga-summary').classList.remove('tg-hidden');
+}
+
+// ── Mode B ─────────────────────────────────────────────────────────────────
+
+let modeBState = {};
+
+function initModeB() {
+  modeBState = { index: 0 };
+
+  const sel = document.getElementById('tgb-jump-select');
+  sel.innerHTML = scenarios.map((s, i) =>
+    `<option value="${i}">Casualty ${s.id}</option>`
+  ).join('');
+  sel.addEventListener('change', () => {
+    modeBState.index = parseInt(sel.value, 10);
+    renderModeB();
+  });
+
+  document.getElementById('tgb-complete').classList.add('tg-hidden');
+  renderModeB();
+}
+
+function renderModeB() {
+  const { index } = modeBState;
+  const s = scenarios[index];
+
+  document.getElementById('tgb-jump-select').value = String(index);
+  document.getElementById('tgb-cas-num').textContent = `Casualty ${index + 1} of ${scenarios.length}`;
+  document.getElementById('tgb-narrative').textContent = s.narrative;
+  document.getElementById('tgb-vitals').innerHTML = vitalsHTML(s.vitals);
+  document.getElementById('tgb-feedback').classList.add('tg-hidden');
+  document.getElementById('tgb-complete').classList.add('tg-hidden');
+  document.getElementById('tgb-reveal').disabled = false;
+}
+
+document.getElementById('tgb-reveal').addEventListener('click', () => {
+  const s = scenarios[modeBState.index];
+  document.getElementById('tgb-result-badge').innerHTML = answerChip(s.answer);
+  document.getElementById('tgb-criterion').textContent = s.criterion;
+  document.getElementById('tgb-teaching').textContent = s.teaching;
+  document.getElementById('tgb-feedback').classList.remove('tg-hidden');
+  document.getElementById('tgb-reveal').disabled = true;
+});
+
+document.getElementById('tgb-next').addEventListener('click', () => {
+  modeBState.index++;
+  if (modeBState.index >= scenarios.length) {
+    document.getElementById('tgb-complete').classList.remove('tg-hidden');
+    document.getElementById('tgb-feedback').classList.add('tg-hidden');
+    return;
+  }
+  renderModeB();
+});
+
+document.getElementById('tgb-restart').addEventListener('click', () => {
+  modeBState.index = 0;
+  document.getElementById('tgb-complete').classList.add('tg-hidden');
+  renderModeB();
+});
+
+document.getElementById('tgb-restart2').addEventListener('click', () => {
+  modeBState.index = 0;
+  document.getElementById('tgb-complete').classList.add('tg-hidden');
+  renderModeB();
+});
+</script>
