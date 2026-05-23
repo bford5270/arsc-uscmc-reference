@@ -13,16 +13,16 @@ const scenariosJson = JSON.stringify(scenarios);
     <div class="tg-mode-cards">
       <button class="tg-mode-card" id="btn-mode-a">
         <span class="tg-mode-title">Mode A — Individual</span>
-        <span class="tg-mode-desc">Work through all 15 casualties solo. Immediate feedback and score at the end.</span>
+        <span class="tg-mode-desc">Work through all 15 casualties solo. Immediate feedback, per-casualty timing, and a total elapsed time at the end.</span>
       </button>
       <button class="tg-mode-card" id="btn-mode-b">
         <span class="tg-mode-title">Mode B — Tabletop / Facilitator</span>
-        <span class="tg-mode-desc">Display one vignette at a time for group discussion. Reveal answer on demand. No scoring.</span>
+        <span class="tg-mode-desc">Display one vignette at a time for group discussion. Per-casualty timer visible to the room. Reveal answer on demand.</span>
       </button>
     </div>
   </div>
 
-  <!-- START algorithm reference (collapsed by default) -->
+  <!-- START algorithm reference -->
   <details id="tg-algorithm" class="tg-details">
     <summary>START Algorithm Reference</summary>
     <ol class="tg-algo-steps">
@@ -40,10 +40,20 @@ const scenariosJson = JSON.stringify(scenarios);
     </ol>
   </details>
 
-  <!-- Mode A game area -->
+  <!-- ── Mode A ── -->
   <div id="tg-mode-a" class="tg-hidden">
     <div class="tg-header">
       <span id="tga-progress" class="tg-progress">Casualty 1 of 15</span>
+      <div class="tg-timers">
+        <span class="tg-timer-pill" title="Time on this casualty">
+          <span class="tg-timer-label">Casualty</span>
+          <span id="tga-cas-timer" class="tg-timer-val">0s</span>
+        </span>
+        <span class="tg-timer-pill tg-timer-overall" title="Total elapsed time">
+          <span class="tg-timer-label">Total</span>
+          <span id="tga-overall-timer" class="tg-timer-val">0:00</span>
+        </span>
+      </div>
       <button class="tg-btn-small" id="tga-restart">↺ Restart</button>
     </div>
 
@@ -60,7 +70,10 @@ const scenariosJson = JSON.stringify(scenarios);
     </div>
 
     <div class="tg-feedback tg-hidden" id="tga-feedback">
-      <div class="tg-feedback-result" id="tga-result-badge"></div>
+      <div class="tg-feedback-top">
+        <div class="tg-feedback-result" id="tga-result-badge"></div>
+        <span class="tg-decision-time" id="tga-decision-time"></span>
+      </div>
       <div class="tg-feedback-body">
         <p><strong>Correct answer:</strong> <span id="tga-correct-answer"></span></p>
         <p><strong>Determining criterion:</strong> <span id="tga-criterion"></span></p>
@@ -71,16 +84,23 @@ const scenariosJson = JSON.stringify(scenarios);
 
     <div class="tg-summary tg-hidden" id="tga-summary">
       <h3>Exercise Complete</h3>
-      <p class="tg-score" id="tga-score"></p>
+      <div class="tg-summary-stats">
+        <span class="tg-score" id="tga-score"></span>
+        <span class="tg-total-time" id="tga-total-time"></span>
+      </div>
       <div id="tga-missed"></div>
       <button class="tg-btn" id="tga-restart2">↺ Restart (randomized order)</button>
     </div>
   </div>
 
-  <!-- Mode B game area -->
+  <!-- ── Mode B ── -->
   <div id="tg-mode-b" class="tg-hidden">
     <div class="tg-header">
       <span class="tg-progress">Facilitator Mode</span>
+      <span class="tg-timer-pill tg-timer-large" title="Time on this casualty">
+        <span class="tg-timer-label">Casualty time</span>
+        <span id="tgb-cas-timer" class="tg-timer-val">0:00</span>
+      </span>
       <div class="tg-jump">
         <label for="tgb-jump-select">Jump to:</label>
         <select id="tgb-jump-select"></select>
@@ -100,7 +120,10 @@ const scenariosJson = JSON.stringify(scenarios);
     </div>
 
     <div class="tg-feedback tg-hidden" id="tgb-feedback">
-      <div class="tg-feedback-result" id="tgb-result-badge"></div>
+      <div class="tg-feedback-top">
+        <div class="tg-feedback-result" id="tgb-result-badge"></div>
+        <span class="tg-decision-time" id="tgb-reveal-time"></span>
+      </div>
       <div class="tg-feedback-body">
         <p><strong>Determining criterion:</strong> <span id="tgb-criterion"></span></p>
         <p class="tg-teaching" id="tgb-teaching"></p>
@@ -205,10 +228,11 @@ const scenariosJson = JSON.stringify(scenarios);
   .chip.t3 { background: #16a34a; color: #fff; }
   .chip.t4 { background: #374151; color: #fff; }
 
+  /* ── Header ── */
   .tg-header {
     display: flex;
     align-items: center;
-    gap: 1rem;
+    gap: 0.75rem;
     margin-bottom: 1rem;
     flex-wrap: wrap;
   }
@@ -217,6 +241,57 @@ const scenariosJson = JSON.stringify(scenarios);
     font-weight: 700;
     color: var(--sl-color-white);
     flex: 1;
+  }
+
+  /* ── Timers ── */
+  .tg-timers {
+    display: flex;
+    gap: 0.5rem;
+    align-items: center;
+  }
+
+  .tg-timer-pill {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    background: var(--sl-color-gray-5);
+    border: 1px solid var(--sl-color-gray-4);
+    border-radius: 6px;
+    padding: 0.2rem 0.6rem;
+    min-width: 56px;
+    line-height: 1.2;
+  }
+
+  .tg-timer-overall {
+    border-color: var(--sl-color-accent);
+  }
+
+  .tg-timer-large {
+    padding: 0.25rem 0.9rem;
+    min-width: 80px;
+  }
+
+  .tg-timer-label {
+    font-size: 0.62rem;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--sl-color-gray-3);
+    font-weight: 600;
+  }
+
+  .tg-timer-val {
+    font-size: 1rem;
+    font-weight: 700;
+    font-variant-numeric: tabular-nums;
+    color: var(--sl-color-white);
+  }
+
+  .tg-timer-large .tg-timer-val {
+    font-size: 1.35rem;
+  }
+
+  .tg-timer-overall .tg-timer-val {
+    color: var(--sl-color-accent);
   }
 
   .tg-jump {
@@ -235,6 +310,7 @@ const scenariosJson = JSON.stringify(scenarios);
     cursor: pointer;
   }
 
+  /* ── Card ── */
   .tg-card {
     background: var(--sl-color-gray-6);
     border: 1px solid var(--sl-color-gray-5);
@@ -286,6 +362,7 @@ const scenariosJson = JSON.stringify(scenarios);
     color: var(--sl-color-white);
   }
 
+  /* ── Choices ── */
   .tg-choices {
     display: grid;
     grid-template-columns: 1fr 1fr;
@@ -317,6 +394,7 @@ const scenariosJson = JSON.stringify(scenarios);
   .tg-choice.selected-correct { outline: 3px solid #fff; }
   .tg-choice.selected-wrong { opacity: 0.5; }
 
+  /* ── Feedback ── */
   .tg-feedback {
     background: var(--sl-color-gray-6);
     border: 1px solid var(--sl-color-gray-5);
@@ -325,10 +403,23 @@ const scenariosJson = JSON.stringify(scenarios);
     margin-bottom: 1rem;
   }
 
+  .tg-feedback-top {
+    display: flex;
+    align-items: baseline;
+    gap: 1rem;
+    margin-bottom: 0.75rem;
+    flex-wrap: wrap;
+  }
+
   .tg-feedback-result {
     font-size: 1.1rem;
     font-weight: 700;
-    margin-bottom: 0.75rem;
+  }
+
+  .tg-decision-time {
+    font-size: 0.8rem;
+    color: var(--sl-color-gray-3);
+    font-variant-numeric: tabular-nums;
   }
 
   .tg-feedback-body p {
@@ -345,6 +436,7 @@ const scenariosJson = JSON.stringify(scenarios);
     color: var(--sl-color-gray-2);
   }
 
+  /* ── Buttons ── */
   .tg-btn {
     display: inline-block;
     margin-top: 0.75rem;
@@ -389,6 +481,7 @@ const scenariosJson = JSON.stringify(scenarios);
 
   .tg-mode-b-controls .tg-btn { margin-top: 0; }
 
+  /* ── Summary ── */
   .tg-summary {
     background: var(--sl-color-gray-6);
     border: 1px solid var(--sl-color-gray-5);
@@ -398,11 +491,24 @@ const scenariosJson = JSON.stringify(scenarios);
 
   .tg-summary h3 { margin-top: 0; }
 
+  .tg-summary-stats {
+    display: flex;
+    align-items: baseline;
+    gap: 1.5rem;
+    margin-bottom: 1rem;
+    flex-wrap: wrap;
+  }
+
   .tg-score {
     font-size: 1.5rem;
     font-weight: 700;
     color: var(--sl-color-white);
-    margin-bottom: 1rem;
+  }
+
+  .tg-total-time {
+    font-size: 1rem;
+    color: var(--sl-color-gray-2);
+    font-variant-numeric: tabular-nums;
   }
 
   .tg-missed-item {
@@ -428,6 +534,63 @@ const scenariosJson = JSON.stringify(scenarios);
 <script define:vars={{ scenariosJson }}>
 const scenarios = JSON.parse(scenariosJson);
 
+// ── Timer helpers ──────────────────────────────────────────────────────────
+
+function formatSeconds(s) {
+  const m = Math.floor(s / 60);
+  const sec = s % 60;
+  return m > 0 ? `${m}:${String(sec).padStart(2, '0')}` : `${sec}s`;
+}
+
+function formatMs(ms) {
+  return formatSeconds(Math.floor(ms / 1000));
+}
+
+function formatMsFull(ms) {
+  const totalSec = Math.floor(ms / 1000);
+  const m = Math.floor(totalSec / 60);
+  const s = totalSec % 60;
+  return `${m}:${String(s).padStart(2, '0')}`;
+}
+
+class Timer {
+  constructor(displayEl, tickMs = 100) {
+    this._el = displayEl;
+    this._tickMs = tickMs;
+    this._start = null;
+    this._interval = null;
+    this._stopped = null; // elapsed ms when stopped
+  }
+
+  start() {
+    this._stopped = null;
+    this._start = Date.now();
+    clearInterval(this._interval);
+    this._interval = setInterval(() => {
+      if (this._el) this._el.textContent = formatMs(Date.now() - this._start);
+    }, this._tickMs);
+  }
+
+  stop() {
+    clearInterval(this._interval);
+    this._interval = null;
+    this._stopped = this._start !== null ? Date.now() - this._start : 0;
+    return this._stopped;
+  }
+
+  elapsed() {
+    if (this._stopped !== null) return this._stopped;
+    return this._start !== null ? Date.now() - this._start : 0;
+  }
+
+  reset() {
+    this.stop();
+    this._start = null;
+    this._stopped = null;
+    if (this._el) this._el.textContent = '0s';
+  }
+}
+
 // ── Utilities ──────────────────────────────────────────────────────────────
 
 function shuffle(arr) {
@@ -440,14 +603,11 @@ function shuffle(arr) {
 }
 
 function vitalsHTML(v) {
-  const rows = [];
   const vital = (label, val) =>
     `<div class="tg-vital"><span class="tg-vital-label">${label}</span><span class="tg-vital-val">${val}</span></div>`;
-
-  rows.push(vital('Ambulatory', v.ambulatory ? 'Yes' : 'No'));
+  const rows = [vital('Ambulatory', v.ambulatory ? 'Yes' : 'No')];
   if (!v.ambulatory) {
-    const rrLabel = v.rr === 0 ? 'Apneic' : `${v.rr}/min (${v.rrQuality})`;
-    rows.push(vital('Resp Rate', rrLabel));
+    rows.push(vital('Resp Rate', v.rr === 0 ? 'Apneic' : `${v.rr}/min (${v.rrQuality})`));
     rows.push(vital('Radial Pulse', v.radialPulse));
     rows.push(vital('Cap Refill', v.capRefill));
     rows.push(vital('Follows Commands', v.followsCommands ? 'Yes' : 'No'));
@@ -461,8 +621,7 @@ function vitalsHTML(v) {
 
 function answerChip(ans) {
   const labels = { T1: 'T1 — Immediate', T2: 'T2 — Delayed', T3: 'T3 — Minimal', T4: 'T4 — Expectant' };
-  const cls = ans.toLowerCase();
-  return `<span class="chip ${cls}">${labels[ans]}</span>`;
+  return `<span class="chip ${ans.toLowerCase()}">${labels[ans]}</span>`;
 }
 
 // ── Mode selector ──────────────────────────────────────────────────────────
@@ -486,18 +645,31 @@ document.getElementById('btn-mode-b').addEventListener('click', () => {
 // ── Mode A ─────────────────────────────────────────────────────────────────
 
 let modeAState = {};
+let overallTimer = null;
+let casTimerA = null;
 
 function initModeA(randomize = false) {
+  // Stop any running timers
+  if (overallTimer) overallTimer.stop();
+  if (casTimerA) casTimerA.stop();
+
+  overallTimer = new Timer(document.getElementById('tga-overall-timer'));
+  casTimerA = new Timer(document.getElementById('tga-cas-timer'));
+
   modeAState = {
     queue: randomize ? shuffle(scenarios) : [...scenarios],
     index: 0,
     correct: 0,
     wrong: [],
     answered: false,
+    casElapsed: [],
   };
+
   document.getElementById('tga-summary').classList.add('tg-hidden');
   document.getElementById('tga-feedback').classList.add('tg-hidden');
   document.getElementById('tga-choices').classList.remove('tg-hidden');
+
+  overallTimer.start();
   renderModeA();
 }
 
@@ -513,17 +685,23 @@ function renderModeA() {
   document.getElementById('tga-vitals').innerHTML = vitalsHTML(s.vitals);
   document.getElementById('tga-feedback').classList.add('tg-hidden');
 
-  const choices = document.querySelectorAll('.tg-choice');
-  choices.forEach(btn => {
+  document.querySelectorAll('.tg-choice').forEach(btn => {
     btn.disabled = false;
     btn.classList.remove('selected-correct', 'selected-wrong');
   });
+
+  casTimerA.reset();
+  casTimerA.start();
+  modeAState.answered = false;
 }
 
 document.querySelectorAll('.tg-choice').forEach(btn => {
   btn.addEventListener('click', () => {
     if (modeAState.answered) return;
     modeAState.answered = true;
+
+    const elapsed = casTimerA.stop();
+    modeAState.casElapsed.push(elapsed);
 
     const chosen = btn.dataset.answer;
     const s = modeAState.queue[modeAState.index];
@@ -534,26 +712,25 @@ document.querySelectorAll('.tg-choice').forEach(btn => {
       btn.classList.add('selected-correct');
     } else {
       btn.classList.add('selected-wrong');
-      modeAState.wrong.push({ scenario: s, chosen });
+      modeAState.wrong.push({ scenario: s, chosen, elapsed });
       document.querySelector(`.tg-choice[data-answer="${s.answer}"]`).classList.add('selected-correct');
     }
 
-    document.querySelectorAll('.tg-choice').forEach(b => b.disabled = true);
+    document.querySelectorAll('.tg-choice').forEach(b => (b.disabled = true));
 
-    const feedback = document.getElementById('tga-feedback');
     document.getElementById('tga-result-badge').innerHTML =
       correct ? '✓ Correct' : `✗ Incorrect — you selected ${answerChip(chosen)}`;
     document.getElementById('tga-result-badge').style.color = correct ? '#16a34a' : '#dc2626';
     document.getElementById('tga-correct-answer').innerHTML = answerChip(s.answer);
     document.getElementById('tga-criterion').textContent = s.criterion;
     document.getElementById('tga-teaching').textContent = s.teaching;
-    feedback.classList.remove('tg-hidden');
+    document.getElementById('tga-decision-time').textContent = `Decision: ${formatMs(elapsed)}`;
+    document.getElementById('tga-feedback').classList.remove('tg-hidden');
   });
 });
 
 document.getElementById('tga-next').addEventListener('click', () => {
   modeAState.index++;
-  modeAState.answered = false;
   renderModeA();
 });
 
@@ -561,26 +738,35 @@ document.getElementById('tga-restart').addEventListener('click', () => initModeA
 document.getElementById('tga-restart2').addEventListener('click', () => initModeA(true));
 
 function showModeASummary() {
+  const totalElapsed = overallTimer.stop();
+  casTimerA.stop();
+
   document.getElementById('tga-choices').classList.add('tg-hidden');
   document.getElementById('tga-feedback').classList.add('tg-hidden');
 
   const total = modeAState.queue.length;
   const correct = modeAState.correct;
-  const score = document.getElementById('tga-score');
-  score.textContent = `${correct} / ${total} correct`;
-  score.style.color = correct === total ? '#16a34a' : correct >= total * 0.8 ? '#ca8a04' : '#dc2626';
+  const scoreEl = document.getElementById('tga-score');
+  scoreEl.textContent = `${correct} / ${total} correct`;
+  scoreEl.style.color = correct === total ? '#16a34a' : correct >= total * 0.8 ? '#ca8a04' : '#dc2626';
+
+  document.getElementById('tga-total-time').textContent = `Total time: ${formatMsFull(totalElapsed)}`;
 
   const missedEl = document.getElementById('tga-missed');
   if (modeAState.wrong.length === 0) {
     missedEl.innerHTML = '<p>All casualties correctly triaged.</p>';
   } else {
-    missedEl.innerHTML = '<p><strong>Review:</strong></p>' +
-      modeAState.wrong.map(({ scenario, chosen }) =>
-        `<div class="tg-missed-item">
-          <strong>Casualty ${scenario.id}</strong>: You selected ${answerChip(chosen)}, correct is ${answerChip(scenario.answer)}<br>
-          <em>${scenario.criterion}</em> — ${scenario.teaching}
-        </div>`
-      ).join('');
+    missedEl.innerHTML =
+      '<p><strong>Review:</strong></p>' +
+      modeAState.wrong
+        .map(
+          ({ scenario, chosen, elapsed }) =>
+            `<div class="tg-missed-item">
+              <strong>Casualty ${scenario.id}</strong> (${formatMs(elapsed)}): You selected ${answerChip(chosen)}, correct is ${answerChip(scenario.answer)}<br>
+              <em>${scenario.criterion}</em> — ${scenario.teaching}
+            </div>`
+        )
+        .join('');
   }
 
   document.getElementById('tga-summary').classList.remove('tg-hidden');
@@ -589,14 +775,18 @@ function showModeASummary() {
 // ── Mode B ─────────────────────────────────────────────────────────────────
 
 let modeBState = {};
+let casTimerB = null;
 
 function initModeB() {
+  if (casTimerB) casTimerB.stop();
+  casTimerB = new Timer(document.getElementById('tgb-cas-timer'));
+
   modeBState = { index: 0 };
 
   const sel = document.getElementById('tgb-jump-select');
-  sel.innerHTML = scenarios.map((s, i) =>
-    `<option value="${i}">Casualty ${s.id}</option>`
-  ).join('');
+  sel.innerHTML = scenarios
+    .map((s, i) => `<option value="${i}">Casualty ${s.id}</option>`)
+    .join('');
   sel.addEventListener('change', () => {
     modeBState.index = parseInt(sel.value, 10);
     renderModeB();
@@ -617,13 +807,19 @@ function renderModeB() {
   document.getElementById('tgb-feedback').classList.add('tg-hidden');
   document.getElementById('tgb-complete').classList.add('tg-hidden');
   document.getElementById('tgb-reveal').disabled = false;
+
+  casTimerB.reset();
+  casTimerB.start();
 }
 
 document.getElementById('tgb-reveal').addEventListener('click', () => {
+  const elapsed = casTimerB.stop();
   const s = scenarios[modeBState.index];
+
   document.getElementById('tgb-result-badge').innerHTML = answerChip(s.answer);
   document.getElementById('tgb-criterion').textContent = s.criterion;
   document.getElementById('tgb-teaching').textContent = s.teaching;
+  document.getElementById('tgb-reveal-time').textContent = `Discussion time: ${formatMs(elapsed)}`;
   document.getElementById('tgb-feedback').classList.remove('tg-hidden');
   document.getElementById('tgb-reveal').disabled = true;
 });
@@ -631,6 +827,7 @@ document.getElementById('tgb-reveal').addEventListener('click', () => {
 document.getElementById('tgb-next').addEventListener('click', () => {
   modeBState.index++;
   if (modeBState.index >= scenarios.length) {
+    casTimerB.stop();
     document.getElementById('tgb-complete').classList.remove('tg-hidden');
     document.getElementById('tgb-feedback').classList.add('tg-hidden');
     return;
