@@ -1,0 +1,122 @@
+[
+  {
+    "id": 1,
+    "narrative": "Walking toward you holding a bloody arm. GSW graze to left forearm. Alert, talking, asking for help.",
+    "vitals": { "ambulatory": true, "rr": 18, "rrQuality": "unlabored", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T3",
+    "criterion": "Ambulatory",
+    "teaching": "Walking wounded are T3 Minimal by START. Sort them first, treat last."
+  },
+  {
+    "id": 2,
+    "narrative": "Prone, blast injury to both legs, tourniquets in place. Moaning. RR 24, pulse present.",
+    "vitals": { "ambulatory": false, "rr": 24, "rrQuality": "labored", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T2",
+    "criterion": "All parameters within threshold",
+    "teaching": "Limb amputation with tourniquet, alert, and stable vitals is T2 Delayed. Priority for next surgical slot when resources allow."
+  },
+  {
+    "id": 3,
+    "narrative": "Supine, penetrating abdominal injury. RR 34, no radial pulse palpable.",
+    "vitals": { "ambulatory": false, "rr": 34, "rrQuality": "rapid/shallow", "radialPulse": "absent", "capRefill": ">2s", "followsCommands": true },
+    "answer": "T1",
+    "criterion": "RR > 30 AND no radial pulse",
+    "teaching": "Two criteria both trigger T1 here. Either one alone is sufficient — identify the first criterion met and stop."
+  },
+  {
+    "id": 4,
+    "narrative": "Apneic on arrival. No visible chest rise. Airway repositioned — still no breathing. No pulse.",
+    "vitals": { "ambulatory": false, "rr": 0, "rrQuality": "apneic", "radialPulse": "absent", "capRefill": ">2s", "followsCommands": false, "airwayRepositionedAndStillApneic": true },
+    "answer": "T4",
+    "criterion": "Apneic after airway repositioning",
+    "teaching": "T4 Expectant. In MASCAL, CPR is not initiated — resources go to salvageable casualties. Comfort measures only."
+  },
+  {
+    "id": 5,
+    "narrative": "Walking with hands over ears. Complaining of ringing and muffled hearing after blast. No other apparent injury.",
+    "vitals": { "ambulatory": true, "rr": 16, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T3",
+    "criterion": "Ambulatory",
+    "teaching": "Blast concussion without other injury is T3. Reassess for MACE 2 criteria once immediate casualties are stabilized."
+  },
+  {
+    "id": 6,
+    "narrative": "Unresponsive. Agonal respirations at 6/min. Radial pulse palpable. Does not follow commands.",
+    "vitals": { "ambulatory": false, "rr": 6, "rrQuality": "agonal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": false },
+    "answer": "T1",
+    "criterion": "Cannot follow commands",
+    "teaching": "Mental status criterion: cannot follow commands → T1. Agonal breathing also signals impending arrest. This casualty needs immediate airway and breathing intervention."
+  },
+  {
+    "id": 7,
+    "narrative": "Burns to ~40% BSA, anterior torso and arms. Alert, in significant pain. RR 22, pulse present.",
+    "vitals": { "ambulatory": false, "rr": 22, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T2",
+    "criterion": "All parameters within threshold",
+    "teaching": "Major burns with intact vitals and mental status are T2. Burns will worsen with time — early EVAC is critical. Do not underestimate based on current stability."
+  },
+  {
+    "id": 8,
+    "narrative": "Penetrating chest wound, trachea deviated, absent breath sounds on right. RR 36, no radial pulse.",
+    "vitals": { "ambulatory": false, "rr": 36, "rrQuality": "rapid/labored", "radialPulse": "absent", "capRefill": ">2s", "followsCommands": true },
+    "answer": "T1",
+    "criterion": "RR > 30 AND no radial pulse",
+    "teaching": "Tension pneumothorax presentation. T1. Needle decompression is a triage-level intervention — can be performed before moving to treatment."
+  },
+  {
+    "id": 9,
+    "narrative": "Traumatic amputation below knee, tourniquet applied and effective. Alert, conversational. RR 18, radial pulse present.",
+    "vitals": { "ambulatory": false, "rr": 18, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T2",
+    "criterion": "All parameters within threshold",
+    "teaching": "Effectively tourniquet-controlled amputation with stable vitals is T2. Don't upgrade based on mechanism alone — use the algorithm."
+  },
+  {
+    "id": 10,
+    "narrative": "Blunt head trauma. GCS Motor 5 (localizes pain). RR 20, radial pulse present. Does not follow commands.",
+    "vitals": { "ambulatory": false, "rr": 20, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": false },
+    "answer": "T1",
+    "criterion": "Cannot follow commands",
+    "teaching": "TBI with altered mental status is T1 by the commands criterion. Neurosurgical capability is the rate-limiting resource; triage officer must flag for EVAC to higher echelon."
+  },
+  {
+    "id": 11,
+    "narrative": "Found apneic. Airway repositioned — breathing resumes at RR 18. Radial pulse present, cap refill 1.8s. Follows commands.",
+    "vitals": { "ambulatory": false, "rr": 18, "rrQuality": "normal after repositioning", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true, "airwayRepositionedAndNowBreathing": true },
+    "answer": "T1",
+    "criterion": "Required airway repositioning to breathe",
+    "teaching": "START designates T1 Immediate for any casualty who required airway repositioning to restore breathing — even if vitals are otherwise acceptable. The airway is not self-maintaining."
+  },
+  {
+    "id": 12,
+    "narrative": "Walking toward the CCP, hand pressed to shoulder. GSW to right shoulder, controlled with direct pressure. Alert, asking about his buddy.",
+    "vitals": { "ambulatory": true, "rr": 16, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T3",
+    "criterion": "Ambulatory",
+    "teaching": "Ambulatory casualty = T3 Minimal. Direct the patient to the T3 area and move on."
+  },
+  {
+    "id": 13,
+    "narrative": "Blast injury. Apneic on arrival. Airway repositioned. Still apneic. No radial pulse.",
+    "vitals": { "ambulatory": false, "rr": 0, "rrQuality": "apneic", "radialPulse": "absent", "capRefill": ">2s", "followsCommands": false, "airwayRepositionedAndStillApneic": true },
+    "answer": "T4",
+    "criterion": "Apneic after airway repositioning",
+    "teaching": "No pulse and apneic after repositioning = T4 Expectant. In MASCAL, this is not a survivable injury within your current resource envelope."
+  },
+  {
+    "id": 14,
+    "narrative": "Crush injury to pelvis. Cannot move lower extremities. RR 28, no radial pulse palpable. Moaning.",
+    "vitals": { "ambulatory": false, "rr": 28, "rrQuality": "rapid", "radialPulse": "absent", "capRefill": ">2s", "followsCommands": true },
+    "answer": "T1",
+    "criterion": "No radial pulse",
+    "teaching": "Pelvic crush with absent radial pulse = T1. Hemorrhagic shock. Apply pelvic binder if available. High priority for STP."
+  },
+  {
+    "id": 15,
+    "narrative": "Facial burns, airway intact, no stridor. RR 26, radial pulse present, cap refill 1.5s. Follows commands.",
+    "vitals": { "ambulatory": false, "rr": 26, "rrQuality": "normal", "radialPulse": "present", "capRefill": "<2s", "followsCommands": true },
+    "answer": "T2",
+    "criterion": "All parameters within threshold",
+    "teaching": "Current vitals are T2. Facial burns with inhalation risk — monitor airway closely. A worsening airway can upgrade this to T1. Document and reassess."
+  }
+]
