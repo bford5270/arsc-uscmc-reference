@@ -19,3 +19,9 @@ node_modules/
 *.swo
 .idea/
 .vscode/settings.json
+
+# Planning and development artifacts (not for public repo)
+planning/
+CLAUDE_CODE_SPRINT2_PROMPT.md
+CPG_AND_FORMS_URL_MAP.md
+NEXT_SESSION_NOTES.md

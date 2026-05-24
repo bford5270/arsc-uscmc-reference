@@ -11,7 +11,7 @@ export default defineConfig({
       },
       title: 'ARSC USMC Field Reference',
       description:
-        'A public, web-based reference and onboarding resource for 1st Medical Battalion personnel that organizes the Austere Resuscitative Surgical Care (ARSC) framework around the Marine Corps Role 2 patient-flow construct.',
+        'A public web reference for USMC Role 2 HSS personnel on the Austere Resuscitative Surgical Care (ARSC) framework and the Marine Corps Role 2 patient-flow construct.',
       customCss: ['./src/styles/custom.css'],
       social: {
         github: 'https://github.com/bford5270/arsc-uscmc-reference',

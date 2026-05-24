@@ -1,10 +1,10 @@
 # ARSC USMC Field Reference
 
-A public, web-based reference and onboarding resource for 1st Medical Battalion personnel that organizes the Austere Resuscitative Surgical Care (ARSC) framework around the Marine Corps Role 2 patient-flow construct.
+A public, web-based reference and onboarding resource for USMC Role 2 medical unit personnel that organizes the Austere Resuscitative Surgical Care (ARSC) framework around the Marine Corps Role 2 patient-flow construct.
 
 **Live site:** [usmc-arsc.org](https://usmc-arsc.org) *(domain pending registration)*
 
-**Status:** v1 complete — interactive diagram, all content pages, ELO crosswalk. Pending CDR Ford's content review and TBD-filling pass.
+**Status:** v1 complete — interactive diagram, all content pages, ELO crosswalk. Content in active development.
 
 ---
 
@@ -12,9 +12,9 @@ A public, web-based reference and onboarding resource for 1st Medical Battalion 
 
 The site consolidates ARSC doctrinal, personnel, equipment, and procedural content onto a clickable Role 2 diagram, and binds each node in the patient flow to the relevant ARSC Joint Training Standard Terminal and Enabling Learning Objectives (TLOs/ELOs).
 
-**Primary audience:** 1st Med Bn check-ins — corpsmen, physicians, nurses, surgical technicians, anesthesia providers, support personnel. Spans junior-enlisted to O-6.
+**Primary audience:** Role 2 medical unit personnel — corpsmen, physicians, nurses, surgical technicians, anesthesia providers, support personnel. Spans junior-enlisted to O-6.
 
-**Disclaimer:** This site is a community professional reference compiled by CDR Brian S. Ford, MC, USN, drawing on publicly released doctrine. It is not an official publication of the Department of Defense, the Department of the Navy, the United States Marine Corps, or the Joint Trauma System.
+**Disclaimer:** This site is a community professional reference compiled from publicly released doctrine. It is not an official publication of the Department of Defense, the Department of the Navy, the United States Marine Corps, or the Joint Trauma System.
 
 ---
 

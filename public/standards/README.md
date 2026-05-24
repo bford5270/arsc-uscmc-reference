@@ -11,7 +11,7 @@ public/standards/
 
 ## Workflow
 
-1. CDR Ford supplies a PDF that has passed the OPSEC checklist.
+1. A reviewer supplies a PDF that has passed the OPSEC checklist.
 2. Place the PDF at the correct path above (e.g., `public/standards/sops/mascal.pdf`).
 3. Create the corresponding MDX page using `src/content/docs/standards/_template.mdx` as the pattern.
 4. Update the MDX frontmatter and PdfEmbed props with the document's metadata.
